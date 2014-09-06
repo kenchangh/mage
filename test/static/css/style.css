@@ -1,0 +1,14 @@
+/*
+ * Author: Maverick Chan
+ * Project: SociaListDJ
+ */
+
+/*
+Page Necessities
+*/
+
+abbr[title] {
+  border-bottom-width: 0;
+  cursor: pointer;
+}
+
