@@ -3,16 +3,22 @@ var mage = {
   teleport: teleport
 };
 
+    
+var ParameterError = {
+  name: 'Parameter Error',
+  message: 'You have set an unavailable id',
+  toString: function() {return this.name + ': ' + this.message;}
+}
+
 
 /**
  * Set the images into localStorage and load them to the page.
- * 
  * @param {Object} {domID: imageURL, ...}     
  */
 function teleport(idToImages) {
   // Don't do anything if mage has already saved base64
   if (localStorage['mage_sent'] === undefined) {
-    console.log('reloaded function')
+    console.log('reloaded function');
     /**
      * Convert an image 
      * to a base64 string
@@ -37,11 +43,11 @@ function teleport(idToImages) {
      * image/jpeg
      * image/webp (chrome)       
      */
-    function convertImgToBase64(url, callback) {
+    function convertImgToBase64(id, url, callback) {
       // .jpg, .png...
       var imageType = url.split('.')[1];
       var outputFormat;
-      imageType == 'jpg' || imageType == 'jpeg'
+      imageType === 'jpg' || imageType === 'jpeg'
         ? outputFormat = 'image/jpeg'
         : outputFormat = 'image/png'
       
@@ -54,19 +60,26 @@ function teleport(idToImages) {
         canvas.width = img.width;
         ctx.drawImage(img, 0, 0);
         var dataURL = canvas.toDataURL(outputFormat);
-        callback.call(this, url, dataURL);
+        callback.call(this, id, url, dataURL);
         canvas = null;
       };
       img.src = url;
     }
- 
+   
+    idToImages = registerBaseUrl(idToImages);    
     var img;
     for (var id in idToImages) {
       img = idToImages[id];
-      convertImgToBase64(img, function(url, base64) {
+      convertImgToBase64(id, img, function(id, url, base64) {
         localStorage[url] = base64;
-        console.log(base64)
-        document.getElementById(id).setAttribute('src', base64);
+        var dom = document.getElementById(id)
+        console.log(id)
+        if (dom !== null) {
+          dom.setAttribute('src', base64);
+        }
+        else {
+          throw ParameterError;
+        }        
       });
     }
     localStorage['mage_sent'] = '';
@@ -77,21 +90,45 @@ function teleport(idToImages) {
 }
 
 
+function registerBaseUrl(idToImages) {
+  // If baseUrl present, concatenate all URLs with it
+  if (idToImages.baseUrl !== undefined) {
+    var baseUrl = idToImages.baseUrl;
+    delete idToImages.baseUrl;
+    for (var id in idToImages) {
+      // Allow slash to be absent
+      var img = idToImages[id];
+      img.substr(img.length - 1) !== '/'
+        ? img + '/'
+        : null;
+      idToImages[id] = baseUrl + img;
+    }
+  }
+  return idToImages
+}
+
+
 /**
  * Setting the Base64 for images
- * 
  * @param {Object} {domID: imageURL, ...}     
  */
 function loadImage(idToImages) {
-  console.log('lazy load')
+  console.log('lazy load');
+  idToImages = registerBaseUrl(idToImages);
+  
   var base64;
   var img;
   for (var id in idToImages) {
     if (idToImages.hasOwnProperty(id)) {
       img = document.getElementById(id);
+      console.log(id)
+      console.log(img)
       if (img !== null) {
         base64 = localStorage[idToImages[id]];
         img.setAttribute('src', base64);
+      }
+      else {
+        throw ParameterError;
       }
     }
   }
