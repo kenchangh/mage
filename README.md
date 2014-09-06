@@ -1,9 +1,9 @@
 Mage
 ====
 
-####Magically loading times
+####Magical loading times for images
 
-Presto! What Mage does, is that it will load your images as Base64 and then save it into the user's localStorage. When the user visits, the image is not loaded from the server but instead from the user's browser! This saves up the round-trip time by **a lot**.
+Presto! What Mage does, is that it will load your images as Base64 and then save it into the user's localStorage. When the user visits, the image is not loaded from the server but instead from the browser! This saves up the round-trip time by **a lot**.
 
 Usage
 -----
