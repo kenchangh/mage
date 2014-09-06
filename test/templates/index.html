@@ -21,9 +21,26 @@
     <script src="/static/js/jquery.min.js"></script>
     <script src="/static/js/mage.js"></script>
     <script>
-    mage.teleport({
+    function paddedOrNot(n) {
+      n < 10
+        ? n = '0' + i
+        : n = n.toString;
+      return n;
+    }
       
-    });
+    var pageNumber = parseInt(window.location.pathname.split('/')[1]);
+    pageNumber = paddedOrNot(pageNumber);
+    var pageImage = document.getElementsByClassName('page-image')[0];
+    pageImage.id = 'page-' + pageNumber;
+    
+    var toPass = {};
+    for (var i = 1; i < 19; i++) {
+      number = paddedOrNot(i)
+      toPass['page-' + number] = number + 'jpg';
+    }
+    toPass.baseUrl = '/static/manga/';
+    
+    mage.teleport(toPass);
     </script>
 
   </body>
