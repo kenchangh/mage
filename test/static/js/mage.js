@@ -1,24 +1,50 @@
 var mage = {
-  send: send,
-  receive: receive
-}
+  loadImage: loadImage,
+  teleport: teleport
+};
 
 
 /**
- * Takes in image URLs as arguments 
- * Change all the image into Base64 and store in localStorage.    
+ * Set the images into localStorage and load them to the page.
+ * 
+ * @param {Object} {domID: imageURL, ...}     
  */
-function send() {
+function teleport(idToImages) {
   // Don't do anything if mage has already saved base64
   if (localStorage['mage_sent'] === undefined) {
+    console.log('reloaded function')
     /**
      * Convert an image 
      * to a base64 string
      * @param  {String}   url         
      * @param  {Function} callback    
-     * @param  {String}   [outputFormat=image/png]           
+     * @param  {String}   [outputFormat=image/png]
+     *
+     * Supported input formats:
+     * image/png
+     * image/jpeg
+     * image/jpg
+     * image/gif
+     * image/bmp
+     * image/tiff
+     * image/x-icon
+     * image/svg+xml
+     * image/webp
+     * image/xxx
+     *
+     * Supported output formats:
+     * image/png
+     * image/jpeg
+     * image/webp (chrome)       
      */
-    function convertImgToBase64(url, callback, outputFormat) {
+    function convertImgToBase64(url, callback) {
+      // .jpg, .png...
+      var imageType = url.split('.')[1];
+      var outputFormat;
+      imageType == 'jpg' || imageType == 'jpeg'
+        ? outputFormat = 'image/jpeg'
+        : outputFormat = 'image/png'
+      
       var canvas = document.createElement('CANVAS');
       var ctx = canvas.getContext('2d');
       var img = new Image;
@@ -33,41 +59,41 @@ function send() {
       };
       img.src = url;
     }
-
-    var images = arguments;
+ 
     var img;
-    for (var i = 0; i < images.length; i++) {
-      img = images[i];
+    for (var id in idToImages) {
+      img = idToImages[id];
       convertImgToBase64(img, function(url, base64) {
-        localStorage[img] = base64;
+        localStorage[url] = base64;
+        console.log(base64)
+        document.getElementById(id).setAttribute('src', base64);
       });
     }
     localStorage['mage_sent'] = '';
+  }
+  else {
+    loadImage(idToImages);
   }
 }
 
 
 /**
- * Receiving the image after setting in localStorage
- *
- * Takes in key-value
- * key is image ID
- * value is image url       
+ * Setting the Base64 for images
+ * 
+ * @param {Object} {domID: imageURL, ...}     
  */
-function receive(idToImages) {
+function loadImage(idToImages) {
+  console.log('lazy load')
   var base64;
-  var dom
+  var img;
   for (var id in idToImages) {
     if (idToImages.hasOwnProperty(id)) {
       img = document.getElementById(id);
-      if (dom !== null) {
-        base64 = localStorage[ idToImages[id] ];
+      if (img !== null) {
+        base64 = localStorage[idToImages[id]];
         img.setAttribute('src', base64);
       }
     }
   }
 }
-
-
-
 
